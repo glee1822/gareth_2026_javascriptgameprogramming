@@ -1,0 +1,29 @@
+{
+    "name": "JavaScript p5play (Codespaces)",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+
+    "forwardPorts": [5500],
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ritwickdey.LiveServer",
+                "ms-vsliveshare.vsliveshare"
+            ],
+
+            "settings": {
+                "editor.fontSize": 16,
+                "chat.disableAIFeatures": true,
+
+                "editor.inlineSuggest.enabled": true,
+                "editor.suggest.showInlineDetails": true,
+
+                "editor.quickSuggestions": {
+                    "other": true,
+                    "comments": false,
+                    "strings": false
+                }
+            }
+        }
+    }
+}
