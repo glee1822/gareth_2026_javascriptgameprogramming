@@ -12,9 +12,9 @@ body {
     font-family: sans-serif;
 
     /* Change background color */
-    background: #1de6e9;
+    background: #000000;
     /* Change text color */
-    color: #cc5ded;
+    color: #1eff00;
 
     /* Ignore Below */
     min-height: 100vh;
@@ -29,23 +29,24 @@ body {
 .back-btn {
 
     /* Change button color */
-    background: #3b82f6;
+    background: #1eff00;
     /* Change button text */
-    color: white;
+    color: rgb(0, 0, 0);
 
     /* Ignore Below */
     padding: 12px 24px;
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
-    transition: 0.2s;
+    transition: 0.4s;
 }
 
 .btn:hover,
 .back-btn:hover {
     /* Bonus: hover color */
-    background: #2563eb;
-    transform: scale(1.05);
+    background: #1eff0079;
+    transform: scale(1.15);
+    color: rgb(255, 255, 255);
 }
 
 canvas {
