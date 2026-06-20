@@ -82,6 +82,8 @@ function draw() {
   image(img, canvas.w / 2, canvas.h / 2, canvas.w, canvas.h);
 
   if (gameState == "start") {
+    let score = 0
+    let lives = 1
     rectMode(CENTER);
 
     fill("#000000");
@@ -114,8 +116,7 @@ function draw() {
       gameState = "run";
     }
   } else if (gameState == "run") {
-    let score = 0;
-    let lives = 1;
+    
     if (kb.pressing("a")) {
       player.x -= 7;
     }
@@ -239,7 +240,7 @@ function draw() {
     text(`ur score was ${score}`, canvas.w / 2, canvas.h / 2 + 30);
 
     if (score > highscore) {
-      highscore = score;
+      let highscore = score;
     }
     textSize(textSizeValue);
     textAlign(CENTER, CENTER);
@@ -248,7 +249,8 @@ function draw() {
     text(`ur high score was ${highScore}`, canvas.w / 2, canvas.h / 2 + 60);
 
     if (kb.presses("r")) {
-      gameState = "start";
+      
+      let gameState = "start";
     }
   }
 }
