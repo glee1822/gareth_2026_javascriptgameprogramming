@@ -25,6 +25,18 @@ let enemySpeed = 2;
 let enemyRespawnSpeed = 60;
 let enemyRespawnSpeedCounter = 0;
 let enemies;
+let enemyImgs = [];
+let currentEnemyImgIndex = 0;
+let enemyColumns;
+let enemyColumnPadding;
+let totalGapSpace;
+let enemyColumnWidth;
+let jump;
+let enemyBaseSpeed = 1
+let spawnRate;
+let level
+let levelGap = 20
+let rowDistance = 180
 
 let enemyBullet;
 let enemyBulletImg;
@@ -35,11 +47,22 @@ let enemyBullets;
 let score = 0;
 let lives = 1;
 let margin = 20;
-let highScore;
+let highScore = 0;
 
 let gameState = "start";
 let textSizeValue = 30;
 let lineHeight = textSizeValue * 1.5;
+
+let particle
+let particleCount = 15
+let particleDirection
+
+let shakeFrames
+let shakeStrength = 7
+let shakeX
+let shakeY
+
+let scorePops
 
 // player.collider = "none"
 // enemy.collider = "none"
@@ -58,6 +81,9 @@ function preload() {
   bulletImg = loadImage("assets/image/bullet.png");
   enemyImg = loadImage("assets/image/Obstacle10.png");
   enemyBulletImg = loadImage("assets/image/bullet.png");
+  for (i = 1; i < 11; i++) {
+    enemyImgs.push(loadImage(`assets/image/Obstacle${i}.png`));
+  }
 }
 
 function setup() {
@@ -75,15 +101,25 @@ function setup() {
   enemies = new Group();
 
   enemyBullets = new Group();
+
+  scorePops = new Group()
 }
 
 function draw() {
+  shakeX = 0
+  shakeY = 0
+  if (shakeFrames > 0){
+    shakeX = random(-shakeStrength,shakeStrength)
+    shakeY = random(-shakeStrength,shakeStrength)
+    shakeFrames -= 1
+    
+
+  }
+  translate(shakeX,shakeY)
   imageMode(CENTER);
   image(img, canvas.w / 2, canvas.h / 2, canvas.w, canvas.h);
 
   if (gameState == "start") {
-    let score = 0
-    let lives = 1
     rectMode(CENTER);
 
     fill("#000000");
@@ -113,10 +149,12 @@ function draw() {
     strokeWeight(2);
     text("press s to play", canvas.w / 2, canvas.h / 2 + lineHeight * 2);
     if (kb.presses("s")) {
+      score = 0;
+      lives = 1;
       gameState = "run";
     }
-  } else if (gameState == "run") {
-    
+  } 
+  else if (gameState == "run") {
     if (kb.pressing("a")) {
       player.x -= 7;
     }
@@ -126,7 +164,7 @@ function draw() {
     player.x = constrain(player.x, player.w / 2, canvas.w - player.w / 2);
     player.y = constrain(player.y, player.w, canvas.h);
 
-    if (kb.presses("s")) {
+    if (kb.pressing("s")) {
       bullet = new Sprite();
       bullet.img = bulletImg;
       bullet.w = bulletImg.width;
@@ -143,17 +181,40 @@ function draw() {
         bullet.remove();
       }
     }
+    enemyColumns = floor(random(4, 9));
+    enemyColumnPadding = floor(random(8, 15));
+    totalGapSpace = enemyColumnPadding * 2 * enemyColumns;
+    enemyColumnWidth = (canvas.w - totalGapSpace) / enemyColumns;
+    enemyWidth = enemyColumnWidth;
+    jump = canvas.w / enemyColumns;
+    level = floor(score/ levelGap) +1
+    enemySpeed = enemyBaseSpeed + (level - 1) * 0.5
+    spawnRate = floor(rowDistance/enemySpeed)
+    
+    
+    if (score % levelGap == 0) {
+      currentEnemyImgIndex += 1;
 
-    if (frameCount % enemyRespawnSpeed == 0) {
-      enemy = new Sprite();
-      enemy.img = enemyImg;
-      enemy.w = enemyImg.w;
-      enemy.h = enemyImg.h;
-      enemy.scale = random(0.075, 0.15);
-      enemy.y = 0;
-      enemy.x = random(0, 800);
-      enemies.add(enemy);
     }
+    enemyImg = enemyImgs[currentEnemyImgIndex % 10 ]
+    let enemyDisplayImg = enemyImg.get();
+    if (currentEnemyImgIndex < 5) {
+      asteroidHeight = random(40,80);
+      enemyDisplayImg.resize(enemyWidth, asteroidHeight)
+    }
+    for (i = 0; i < enemyColumns; i++) {
+      if (frameCount % enemyRespawnSpeed == 0) {
+        enemy = new Sprite();
+        enemy.img = enemyDisplayImg;
+        enemy.w = enemyDisplayImg.width ;
+        enemy.h = enemyDisplayImg.height;
+        enemy.scale = enemyWidth/enemyDisplayImg.width;
+        enemy.y = 0;
+        enemy.x = jump/2 + i*jump;
+        enemies.add(enemy);
+      }
+    }
+
     for (let enemy of enemies) {
       enemy.y += enemySpeed;
       enemy.x = constrain(enemy.x, enemy.w / 2, canvas.w - enemy.w / 2);
@@ -165,6 +226,40 @@ function draw() {
     for (let enemy of enemies) {
       for (let bullet of bullets) {
         if (bullet.overlapping(enemy)) {
+          for (i=0; i<particleCount; i++){
+            particle = new Sprite()
+            particle.x = enemy.x
+            particle.y = enemy.y
+            particle.diameter = 20
+            particle.colour = "#1eff00"
+            particle.stroke = "#1eff004e"
+            particle.collider = "none"
+            particleDirection = i * (360 / particleCount) + (180 / particleCount)
+            particle.direction = particleDirection
+            particle.speed = 3
+            particle.life = 20
+
+          }
+          shakeFrames = 12
+          scorePop = new Sprite()
+          scorePop.x = enemy.x
+          scorePop.y = enemy.y
+          textColor = "#1eff00"
+          scorePop.textSize = 50
+
+
+          scorePop.text = ("+1")
+          scorePop.color = color(0,0,0,0)
+          scorePop.stroke = color(0,0,0,0)
+          scorePop.collider = "none"
+          scorePop.direction = 270
+          scorePop.speed = 3
+          scorePop.life = 20
+          scorePops.add(scorePop)
+
+
+
+          
           enemy.remove();
           bullet.remove();
           score += 1;
@@ -175,12 +270,27 @@ function draw() {
             enemyRespawnSpeedCounter = 0;
           }
           console.log(`your score is ${score}`);
+          
         }
       }
     }
 
     for (let enemy of enemies) {
       if (enemy.overlapping(player)) {
+          for (i=0; i<particleCount; i++){
+            particle = new Sprite()
+            particle.x = enemy.x
+            particle.y = enemy.y
+            particle.diameter = 20
+            particle.colour = "#e600ff"
+            particle.stroke = "#e600ff5a"
+            particle.collider = "none"
+            particleDirection = i * (360 / particleCount) + (180 / particleCount)
+            particle.direction = particleDirection
+            particle.speed = 3
+            particle.life = 20
+          }
+          shakeFrames = 12
         enemy.remove();
         lives -= 1;
         console.log(`you have ${lives} left`);
@@ -200,6 +310,7 @@ function draw() {
     // }
     // for (let enemyBullet in enemyBullets) {
     //     enemyBullet.y += 5;
+    // }
     textSize(25);
     textAlign(RIGHT, TOP);
     fill("#1eff00");
@@ -208,18 +319,22 @@ function draw() {
     textAlign(RIGHT, TOP);
     fill("#1eff00");
     text(`Lives: ${lives}`, canvas.w - margin, margin * 3);
+    textSize(25);
+    textAlign(RIGHT, TOP);
+    fill("#1eff00");
+    text(`Level: ${level}`, canvas.w - margin, margin * 5);
 
     if (lives < 1) {
       gameState = "fail";
     }
-  } else {
+  }
+  else {
     for (let bullet of bullets) {
       bullet.remove();
     }
     for (let enemy of enemies) {
       enemy.remove();
     }
-
 
     rectMode(CENTER);
     fill("#000000");
@@ -239,8 +354,8 @@ function draw() {
     strokeWeight(2);
     text(`ur score was ${score}`, canvas.w / 2, canvas.h / 2 + 30);
 
-    if (score > highscore) {
-      let highscore = score;
+    if (score > highScore) {
+      highScore = score;
     }
     textSize(textSizeValue);
     textAlign(CENTER, CENTER);
@@ -249,8 +364,8 @@ function draw() {
     text(`ur high score was ${highScore}`, canvas.w / 2, canvas.h / 2 + 60);
 
     if (kb.presses("r")) {
-      
-      let gameState = "start";
+      gameState = "start";
     }
   }
 }
+
